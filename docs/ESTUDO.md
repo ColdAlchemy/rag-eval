@@ -27,6 +27,8 @@ Para entender cada parte e conseguir explicar em entrevista. Leia o código na o
 
 **RRF (Reciprocal Rank Fusion).** Junta rankings de métodos diferentes somando 1/(60 + posição). Não precisa comparar pontuações de escalas diferentes, só posições.
 
+**Trigramas de caracteres.** Em vez de palavras inteiras, compara pedaços de 3 letras ("capital" e "capitais" compartilham "cap", "api", "pit"). Tolera plural, flexão e erro de digitação, sem lista de sinônimos.
+
 **Expansão de consulta.** Acrescenta sinônimos antes de buscar, para cobrir "inquilino" × "locatário". Ajuda, mas exige manter a lista.
 
 **Vazamento (overfitting ao conjunto de teste).** Se eu escrevo sinônimos olhando as perguntas que falharam, o ganho medido nelas é inflado. Por isso há perguntas novas (q27 a q34) que não foram usadas para ajustar nada.
@@ -49,4 +51,4 @@ Para entender cada parte e conseguir explicar em entrevista. Leia o código na o
 5. Implemente um novo recuperador (por exemplo, TF-IDF de bigramas) e inclua-o em `cli.construir`.
 
 ## 5. O que dizer sobre a sua experiência (sem exagerar)
-"Construí um avaliador de recuperação para RAG em Python, com BM25, TF-IDF, RRF e métricas Recall, MRR e nDCG implementados do zero, com conjunto de referência validado e 39 testes. Desenvolvi com o auxílio do Claude Code e estudei o código. Usei corpus fictício e não testei a API real de um modelo." Não diga que "otimizou um RAG em produção" nem que tem "experiência com embeddings": não é o caso.
+"Construí um avaliador de recuperação para RAG em Python, com BM25, TF-IDF, RRF e métricas Recall, MRR e nDCG implementados do zero, com conjunto de referência validado e 41 testes. Desenvolvi com o auxílio do Claude Code e estudei o código. Usei corpus fictício e não testei a API real de um modelo." Não diga que "otimizou um RAG em produção" nem que tem "experiência com embeddings": não é o caso.

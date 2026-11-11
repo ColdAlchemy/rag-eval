@@ -3,7 +3,7 @@ import unittest
 
 from rageval.corpus import Trecho, dividir
 from rageval.metricas import hit_at_k, mrr, ndcg_at_k, recall_at_k
-from rageval.retrievers import BM25, Aleatorio, ComExpansao, Hibrido, TfIdf
+from rageval.retrievers import BM25, Aleatorio, ComExpansao, Hibrido, TfIdf, trigramas
 from rageval.texto import normalizar, radical, tokens
 
 DOC = """# Regras da piscina
@@ -82,6 +82,17 @@ class RecuperadoresTest(unittest.TestCase):
         self.assertEqual(BM25(self.trechos).buscar("felino"), [])  # sem a expansão, nenhuma palavra em comum
         self.assertEqual({i for i, _ in exp.buscar("felino")}, {"gato#1", "gato#2"})
         self.assertEqual(exp.nome, "bm25+expansao")
+
+    def test_trigramas_toleram_flexao(self):
+        comuns = set(trigramas("capital")) & set(trigramas("capitais"))
+        self.assertTrue({"cap", "api", "pit"} <= comuns)
+        self.assertEqual(trigramas("a"), [])  # palavra vazia de sentido (stopword) não gera trigramas
+
+    def test_tfidf_de_trigramas_acha_variacao_da_palavra(self):
+        trechos = dividir("c", "# Condomínio\n\nAs capitais pagam mais.\n\nO gato dorme.")
+        rec = TfIdf(trechos, trigramas, "tri")
+        self.assertEqual(rec.nome, "tri")
+        self.assertEqual(rec.buscar("capital")[0][0], "c#1")
 
     def test_aleatorio_e_deterministico_e_completo(self):
         a = Aleatorio(self.trechos)

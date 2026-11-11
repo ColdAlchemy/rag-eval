@@ -51,11 +51,20 @@ class BM25:
         return _ordenar(pontos)
 
 
-class TfIdf:
-    nome = "tfidf"
+def trigramas(texto: str) -> list[str]:
+    """Trigramas de caracteres de cada palavra (com bordas), para tolerar flexões e erros de grafia."""
+    saida: list[str] = []
+    for palavra in tokens(texto, usar_radical=False):
+        marcada = f"^{palavra}$"
+        saida.extend(marcada[i : i + 3] for i in range(len(marcada) - 2))
+    return saida
 
-    def __init__(self, trechos: list[Trecho]):
-        contagens = {t.id: Counter(tokens(t.indexado)) for t in trechos}
+
+class TfIdf:
+    def __init__(self, trechos: list[Trecho], tokenizador=tokens, nome: str = "tfidf"):
+        self.nome = nome
+        self.tokenizador = tokenizador
+        contagens = {t.id: Counter(tokenizador(t.indexado)) for t in trechos}
         df: Counter = Counter()
         for c in contagens.values():
             df.update(c.keys())
@@ -69,7 +78,7 @@ class TfIdf:
         return {p: x / norma for p, x in v.items()}
 
     def buscar(self, consulta: str) -> list[tuple[str, float]]:
-        q = self._vetor(Counter(tokens(consulta)))
+        q = self._vetor(Counter(self.tokenizador(consulta)))
         pontos = {i: sum(w * v.get(p, 0.0) for p, w in q.items()) for i, v in self.vetores.items()}
         return _ordenar(pontos)
 

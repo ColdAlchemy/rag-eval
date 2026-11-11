@@ -4,22 +4,28 @@ Ferramenta em Python (só biblioteca padrão) que **mede a recuperação de um s
 
 > Desenvolvido por mim com o auxílio do Claude Code. Eu defini o escopo, revisei e estudei o código; o guia `docs/ESTUDO.md` explica cada conceito. O corpus e as perguntas são fictícios.
 
+## Para que serve (em termos simples)
+Muitos sistemas de IA funcionam em dois passos: **primeiro procuram** os trechos de documentos que respondem à pergunta, **depois** um modelo escreve a resposta com eles. Se o primeiro passo falha, a resposta sai errada mesmo com um modelo excelente, e quase ninguém mede isso. Esta ferramenta mede o primeiro passo: faz um "simulado" de perguntas com gabarito, mostra a nota de cada jeito de buscar e **aponta exatamente quais perguntas ele errou**. Com isso dá para melhorar a busca com evidência, em vez de por impressão.
+
 Nasceu da pergunta que ficou aberta depois do [DocsIA](https://github.com/ColdAlchemy/docs-ia-laravel): ele faz RAG e tem um avaliador de citações, mas **a busca em si é boa?** Aqui ela é tratada como algo que se mede.
 
 ## Resultado (34 perguntas, 43 trechos, k = 3)
 ```
-recuperador                    recall@3      hit@3        mrr     ndcg@3
-aleatorio                         0.088      0.088      0.111      0.059
-tfidf                             0.853      0.853      0.787      0.799
-bm25                              0.853      0.853      0.787      0.799
-bm25+expansao                     0.882      0.882      0.816      0.828
-hibrido(bm25+expansao+tfidf)      0.882      0.882      0.816      0.828
+recuperador                     recall@3      hit@3        mrr     ndcg@3
+aleatorio                          0.088      0.088      0.111      0.059
+tfidf                              0.853      0.853      0.787      0.799
+tfidf-trigramas                    0.853      0.853      0.827      0.820
+bm25                               0.853      0.853      0.787      0.799
+bm25+expansao                      0.882      0.882      0.816      0.828
+hibrido(bm25+expansao+tfidf)       0.882      0.882      0.816      0.828
+hibrido(bm25+tfidf-trigramas)      0.882      0.882      0.831      0.835
 ```
 Como ler isso, sem exagerar:
 - O **aleatório** é a linha de base: qualquer método tem de bater 0,09.
 - **BM25 e TF-IDF empatam nas métricas, mas não são iguais**: em 17 das 34 perguntas o ranking completo é diferente. Neste corpus pequeno, as diferenças só não mexem na posição do trecho certo.
-- A **expansão de consulta** (sinônimos) recupera 1 pergunta a mais. Esse ganho é **otimista**: a lista de sinônimos foi escrita depois de eu ver falhas do conjunto. Por isso 8 perguntas (q27 a q34) foram acrescentadas já parafraseadas e os sinônimos **não** foram ajustados a elas.
-- Sobram 4 falhas (`python -m rageval falhas --recuperador bm25+expansao`), todas por **vocabulário diferente** ("derrubar no chão" × "queda", "som alto" × "barulho"). É o limite de uma busca por palavras e o motivo para testar embeddings depois.
+- A **expansão de consulta** (sinônimos) recupera 1 pergunta a mais, mas esse ganho é **otimista**: a lista foi escrita depois de eu ver falhas do conjunto. Por isso as perguntas q27 a q34 foram acrescentadas já parafraseadas e os sinônimos **não** foram ajustados a elas.
+- O **híbrido BM25 + trigramas de caracteres** chega ao mesmo Recall (0,882) **sem nenhuma lista escrita à mão** e com o melhor MRR (0,831). É o resultado mais confiável da tabela: resolve "capital" × "capitais" porque compara pedaços de palavra.
+- Sobram 4 falhas (`python -m rageval falhas --recuperador "hibrido(bm25+tfidf-trigramas)"`), todas por **significado**, não por grafia ("derrubar no chão" × "queda", "som alto" × "barulho"). É o limite de qualquer busca por palavras e o motivo para testar embeddings depois, medindo com esta mesma ferramenta.
 - Corpus pequeno e fictício: os números servem para comparar métodos aqui, não para prometer desempenho em dados reais.
 
 ## Uso
@@ -29,7 +35,7 @@ python -m rageval avaliar -k 3         # tabela comparando os recuperadores
 python -m rageval falhas --recuperador bm25
 python -m rageval perguntar "Qual a garantia da bateria do Orion 14?"
 python -m rageval relatorio            # grava docs/index.html
-python -m unittest                     # 39 testes, sem rede
+python -m unittest                     # 41 testes, sem rede
 ```
 **Nenhuma dependência.** Testado no Python 3.14 (a sintaxe usada exige 3.10 ou mais novo).
 
@@ -38,7 +44,7 @@ python -m unittest                     # 39 testes, sem rede
 |---|---|
 | `texto.py` | normalização (acentos, caixa), palavras vazias em português, radical leve |
 | `corpus.py` | divide documentos `.md` em trechos (um parágrafo, id `documento#n`) |
-| `retrievers.py` | **BM25**, **TF-IDF com cosseno**, **híbrido por RRF**, **expansão de consulta** e **aleatório**, todos escritos do zero |
+| `retrievers.py` | **BM25**, **TF-IDF com cosseno** (por palavras e por trigramas de caracteres), **híbrido por RRF**, **expansão de consulta** e **aleatório**, todos escritos do zero |
 | `metricas.py` | Recall@k, Hit@k, MRR, nDCG@k |
 | `avaliacao.py` | roda o conjunto de referência, agrega, lista falhas e **valida o próprio conjunto** (ids existem; o fato esperado aparece nos trechos relevantes) |
 | `resposta.py` | prompt com trechos rotulados, `ClienteFake` (offline), `ClienteAnthropic`, checagem de citações e um juiz LLM |

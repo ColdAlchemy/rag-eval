@@ -8,15 +8,16 @@ from .avaliacao import Resumo, avaliar, carregar_golden, validar_golden
 from .corpus import Trecho, carregar_corpus
 from .relatorio import gerar_html
 from .resposta import ClienteAnthropic, ClienteFake, checar_citacoes, contem_fato, gerar_resposta
-from .retrievers import BM25, Aleatorio, ComExpansao, Hibrido, Recuperador, TfIdf
+from .retrievers import BM25, Aleatorio, ComExpansao, Hibrido, Recuperador, TfIdf, trigramas
 
 RAIZ = Path(__file__).resolve().parent.parent
 
 
 def construir(trechos: list[Trecho], sinonimos: dict[str, list[str]]) -> list[Recuperador]:
     bm25, tfidf = BM25(trechos), TfIdf(trechos)
+    tri = TfIdf(trechos, trigramas, "tfidf-trigramas")
     bm25_exp = ComExpansao(bm25, sinonimos)
-    return [Aleatorio(trechos), tfidf, bm25, bm25_exp, Hibrido([bm25_exp, tfidf])]
+    return [Aleatorio(trechos), tfidf, tri, bm25, bm25_exp, Hibrido([bm25_exp, tfidf]), Hibrido([bm25, tri])]
 
 
 def _carregar(args) -> tuple[list[Trecho], list, list[Recuperador]]:
