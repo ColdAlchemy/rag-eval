@@ -1,0 +1,14 @@
+{
+  "inquilino": ["locatario"],
+  "hotel": ["hospedagem"],
+  "noite": ["diaria"],
+  "notas": ["comprovantes", "nota fiscal"],
+  "pegar": ["retirar"],
+  "emprestados": ["emprestimo"],
+  "dona": ["contratante"],
+  "pago": ["reembolsadas"],
+  "revisoes": ["revisao", "rodadas"],
+  "devolucao": ["atraso"],
+  "mandar": ["enviar"],
+  "votacao": ["aprovado", "votos"]
+}
