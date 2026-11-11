@@ -9,6 +9,8 @@ Muitos sistemas de IA funcionam em dois passos: **primeiro procuram** os trechos
 
 Nasceu da pergunta que ficou aberta depois do [DocsIA](https://github.com/ColdAlchemy/docs-ia-laravel): ele faz RAG e tem um avaliador de citações, mas **a busca em si é boa?** Aqui ela é tratada como algo que se mede.
 
+**Artigo:** [Como saber se a busca do seu RAG está boa](docs/ARTIGO.md) · **Relatório online:** https://coldalchemy.github.io/rag-eval/
+
 ## Resultado (34 perguntas, 43 trechos, k = 3)
 ```
 recuperador                     recall@3      hit@3        mrr     ndcg@3
