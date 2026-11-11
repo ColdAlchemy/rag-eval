@@ -2,7 +2,7 @@
 
 Ferramenta em Python (só biblioteca padrão) que **mede a recuperação de um sistema RAG**: dado um conjunto de perguntas com a resposta certa conhecida, ela compara vários recuperadores com Recall@k, MRR e nDCG, lista **onde cada um errou**, confere se as respostas **citam trechos que de fato foram recuperados** e gera um relatório HTML.
 
-> Desenvolvido por mim com o auxílio do Claude Code. Eu defini o escopo, revisei e estudei o código; o guia `docs/ESTUDO.md` explica cada conceito. O corpus e as perguntas são fictícios.
+> Eu defini o escopo, revisei e estudei o código; o guia `docs/ESTUDO.md` explica cada conceito. O corpus e as perguntas são fictícios.
 
 ## Para que serve (em termos simples)
 Muitos sistemas de IA funcionam em dois passos: **primeiro procuram** os trechos de documentos que respondem à pergunta, **depois** um modelo escreve a resposta com eles. Se o primeiro passo falha, a resposta sai errada mesmo com um modelo excelente, e quase ninguém mede isso. Esta ferramenta mede o primeiro passo: faz um "simulado" de perguntas com gabarito, mostra a nota de cada jeito de buscar e **aponta exatamente quais perguntas ele errou**. Com isso dá para melhorar a busca com evidência, em vez de por impressão.
